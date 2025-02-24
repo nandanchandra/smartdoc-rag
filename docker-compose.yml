@@ -1,0 +1,73 @@
+services:
+  ollama:
+    image: ollama/ollama:0.5.11
+    container_name: ollama-smartdoc
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_smartdoc_data:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh:ro
+    networks:
+      - smartdoc-net
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    tty: true
+  
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: pgvector-smartdoc
+    env_file:
+      - ./.envs/.local/.postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_smartdoc_data:/var/lib/postgresql/data
+    networks:
+      - smartdoc-net
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin-smartdoc
+    env_file:
+      - ./.envs/.local/.pgadmin
+    ports:
+      - 5050:80
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_smartdoc_data:/var/lib/pgadmin
+    networks:
+      - smartdoc-net
+
+  redis:
+    image: redis/redis-stack:latest
+    container_name: redis-smartdoc
+    restart: always
+    ports:
+      - "6379:6379"
+      - "5540:8001"
+    volumes:
+      - redis_smartdoc_data:/data
+    networks:
+      - smartdoc-net
+
+networks:
+  smartdoc-net:
+    driver: bridge
+
+volumes:
+  ollama_smartdoc_data:
+    driver: local
+  postgres_smartdoc_data:
+    driver: local
+  pgadmin_smartdoc_data:
+    driver: local
+  redis_smartdoc_data:
+    driver: local

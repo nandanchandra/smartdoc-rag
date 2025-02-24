@@ -1,0 +1,27 @@
+[project]
+name = "smartdoc"
+version = "0.1.0"
+description = "A scalable document management and Retrieval-Augmented Generation (RAG)-based Q&A application with efficient embedding storage and retrieval."
+authors = [
+    {name = "Chandra Nandan",email = "chandranandan.chandrakar@gmail.com"}
+]
+requires-python = ">=3.9,<=3.12.8"
+dependencies = [
+    "celery (>=5.4.0,<6.0.0)",
+    "fastapi (>=0.115.8,<0.116.0)",
+    "langchain (>=0.3.19,<0.4.0)",
+    "langchain-ollama (>=0.2.3,<0.3.0)",
+    "langchain-community (>=0.3.18,<0.4.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "pydantic-settings (>=2.8.0,<3.0.0)",
+    "python-dotenv (>=1.0.1,<2.0.0)",
+    "pytest (>=8.3.4,<9.0.0)",
+    "redis (>=5.2.1,<6.0.0)",
+    "sqlmodel (>=0.0.22,<0.0.23)",
+    "uvicorn (>=0.34.0,<0.35.0)",
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

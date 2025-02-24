@@ -1,5 +1,5 @@
 [project]
-name = "smartdoc"
+name = "app"
 version = "0.1.0"
 description = "A scalable document management and Retrieval-Augmented Generation (RAG)-based Q&A application with efficient embedding storage and retrieval."
 authors = [

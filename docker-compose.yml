@@ -1,12 +1,12 @@
 services:
   ollama:
     image: ollama/ollama:0.5.11
-    container_name: ollama-smartdoc
+    container_name: ollama
     restart: always
     ports:
       - "11434:11434"
     volumes:
-      - ollama_smartdoc_data:/root/.ollama
+      - ollama_data:/root/.ollama
       - ./entrypoint.sh:/entrypoint.sh:ro
     networks:
       - smartdoc-net
@@ -22,19 +22,19 @@ services:
   
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: pgvector-smartdoc
+    container_name: pgvector
     env_file:
       - ./.envs/.local/.postgres
     ports:
       - 5432:5432
     volumes:
-      - postgres_smartdoc_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - smartdoc-net
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: pgadmin-smartdoc
+    container_name: pgadmin
     env_file:
       - ./.envs/.local/.pgadmin
     ports:
@@ -42,19 +42,33 @@ services:
     depends_on:
       - postgres
     volumes:
-      - pgadmin_smartdoc_data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
     networks:
       - smartdoc-net
 
   redis:
     image: redis/redis-stack:latest
-    container_name: redis-smartdoc
+    container_name: redis
     restart: always
     ports:
       - "6379:6379"
       - "5540:8001"
     volumes:
-      - redis_smartdoc_data:/data
+      - redis_data:/data
+    networks:
+      - smartdoc-net
+  
+  flower:
+    image: mher/flower
+    container_name: flower
+    restart: always
+    ports:
+      - "5555:5555"
+    depends_on:
+      - redis
+    volumes:
+    - ./entrypoint-flower.sh:/entrypoint-flower.sh:ro
+    entrypoint: ["/bin/sh", "/entrypoint-flower.sh"]
     networks:
       - smartdoc-net
 
@@ -63,11 +77,11 @@ networks:
     driver: bridge
 
 volumes:
-  ollama_smartdoc_data:
+  ollama_data:
     driver: local
-  postgres_smartdoc_data:
+  postgres_data:
     driver: local
-  pgadmin_smartdoc_data:
+  pgadmin_data:
     driver: local
-  redis_smartdoc_data:
+  redis_data:
     driver: local

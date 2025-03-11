@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     aws_s3_signature_version: str = Field("s3v4", env="AWS_S3_SIGNATURE_VERSION")
     aws_s3_addressing_style: str = Field("virtual", env="AWS_S3_ADDRESSING_STYLE")
 
+    celery_worker_name: str = Field(..., env="CELERY_WORKER_NAME")
+    celery_broker_url: str = Field(..., env="CELERY_BROKER_URL")
+    celery_backend: str = Field(..., env="CELERY_BACKEND")
+    celery_timezone: str = Field("UTC", env="CELERY_TIMEZONE")
+
     class Config:
         env_file = ".env"
 

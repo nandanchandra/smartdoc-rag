@@ -2,6 +2,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from app.model.user import User
+from app.model.document import Document
 from app.settings import settings
 from sqlalchemy import create_engine, pool
 from sqlmodel import SQLModel

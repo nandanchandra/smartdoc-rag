@@ -112,7 +112,6 @@ class S3Client:
     def complete_multipart_upload(
         self, user_id: str, file_name: str, upload_id: str, parts: list
     ):
-        logger.info(f"Received parts: {parts}")
         try:
             key = self._get_s3_path_key(user_id, file_name)
             sorted_parts = sorted(

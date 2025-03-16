@@ -1,39 +1,20 @@
-from app.services import s3_client
 from app.celery import celery_app
-from io import BytesIO
-from PyPDF2 import PdfReader
-from starlette.datastructures import UploadFile
+from app.services.s3_client import s3_client
+from app.utils.file_utils import decode_s3_content
 from loguru import logger
 
-
-def extract_text_from_document(input_data):
-
-    text = ""
-    if isinstance(input_data, BytesIO):
-        pdf_reader = PdfReader(input_data)
-        text = "".join(
-            page.extract_text() for page in pdf_reader.pages if page.extract_text()
-        )
-
-    elif isinstance(input_data, UploadFile):
-        pdf_reader = PdfReader(BytesIO(input_data.read()))
-        text = "".join(
-            page.extract_text() for page in pdf_reader.pages if page.extract_text()
-        )
-
-    elif isinstance(input_data, str):
-        text = input_data
-
-    return text
+logger.add("logs/celery_worker.log", rotation="10MB", retention="10 days", level="INFO")
 
 
-@celery_app.task
-def process_uploaded_document(user_id: str, file_name: str):
+@celery_app.task()
+def process_uploaded_document(key: str, bucket: str):
 
-    key = f"{user_id}/{file_name}"
+    s3_response = s3_client.get_object(bucket, key)
+    extracted_text = decode_s3_content(s3_response)
 
-    s3_response = s3_client.s3_client.get_object(
-        Bucket=s3_client.bucket_name, Key=key
-    )
+    logger.info(f"Retrieved document content of size: {len(extracted_text)}: {extracted_text}")
 
-    extracted_text = extract_text_from_document(s3_response["Body"].read())
+    if extracted_text:
+        logger.info(f"Text successfully extracted from document {key}")
+    else:
+        logger.info(f"No text extracted from document {key} ,{extracted_text}")

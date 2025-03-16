@@ -41,6 +41,19 @@ class S3Client:
 
     def _get_s3_path_key(self, user_id: str, file_name: str) -> str:
         return f"{user_id}/{file_name}"
+    
+    def get_object(self, bucket_name: str, key: str) -> bytes:
+        bucket = bucket_name or self.bucket_name
+        try:
+            s3_response = self.s3_client.get_object(Bucket=bucket, Key=key)
+            if "Body" not in s3_response:
+                logger.warning(f"S3 object (Bucket: {bucket}, Key: {key}) has no 'Body' field.")
+                return b""
+            content = s3_response["Body"].read()
+            return content
+        except Exception as e:
+            logger.error(f"Failed to fetch object from S3: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to fetch object from S3.")
 
     def generate_presigned_url(
         self, user_id: str, file_name: str, expiration: int = 60

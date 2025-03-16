@@ -1,4 +1,5 @@
 from app.settings import settings
+from loguru import logger
 from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
                                     create_async_engine)
 
@@ -15,16 +16,20 @@ class Database:
         return cls._instance
 
     async def init_db(self):
-        self._engine = create_async_engine(
-            settings.database_url,
-            pool_size=100,
-            max_overflow=50,
-            pool_timeout=30,
-            pool_recycle=1800,
-        )
-        self._async_session_factory = async_sessionmaker(
-            bind=self._engine, class_=AsyncSession, expire_on_commit=False
-        )
+        try:
+            self._engine = create_async_engine(
+                settings.database_url,
+                pool_size=100,
+                max_overflow=50,
+                pool_timeout=30,
+                pool_recycle=1800,
+            )
+            self._async_session_factory = async_sessionmaker(
+                bind=self._engine, class_=AsyncSession, expire_on_commit=False
+            )
+            logger.success("Database connection initialized.")
+        except Exception as e:
+            logger.error(f"Error initializing database connection: {e}")
 
     async def close_connection(self):
         if self._engine:
@@ -32,7 +37,9 @@ class Database:
 
     async def get_session(self):
         async with self._async_session_factory() as session:
+            logger.debug("New database session.")
             yield session
+
 
 
 db_instance = Database()

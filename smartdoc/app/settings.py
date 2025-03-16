@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     celery_backend: str = Field(..., env="CELERY_BACKEND")
     celery_timezone: str = Field("UTC", env="CELERY_TIMEZONE")
 
+    ollama_model: str = Field(..., env="OLLAMA_MODEL")
+
     class Config:
         env_file = ".env"
 

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/users")
 @router.post("/register", response_model=BaseResponseModel)
 async def register_user(
     payload: CreateUserModel,
-    session: AsyncSession = Depends(db_instance.get_session),
+    session: AsyncSession = Depends(db_instance.get_async_session),
 ):
     await User.exists(session=session, email=payload.email)
     await User.create(session=session, email=payload.email, password=payload.password)

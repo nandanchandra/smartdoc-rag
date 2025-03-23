@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     celery_timezone: str = Field("UTC", env="CELERY_TIMEZONE")
 
     ollama_model: str = Field(..., env="OLLAMA_MODEL")
+    chunk_size: int = Field(1024, env="CHUNK_SIZE")
+    chunk_overlap: int = Field(128, env="CHUNK_OVERLAP")
 
     class Config:
         env_file = ".env"
